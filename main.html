@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF_8">
+</head>
+<script>
+    window.onload = () => {
+        let tpstore
+        let trlength = document.querySelectorAll('.tr').length
+        let tdlength = document.querySelectorAll('.td').length / trlength
+        console.log("高: " + trlength)
+        console.log("寬: " + tdlength)
+        let randomarray = []
+        let answerarray = []
+        let clickevent = document.querySelectorAll('.td')
+        let randomnumber = Math.floor((Math.random() * clickevent.length)) + 1
+        let obj = []
+        for (i = 0; i < clickevent.length; i++) {
+            let m = i + 1
+            answerarray.push(m)
+        }
+        for (i = 0; i < clickevent.length; i++) {
+            let k = i + 1
+            let ra = Math.floor(Math.random() * k)
+            randomarray.splice(ra, 0, k)
+        }
+        for (i = 0; i < clickevent.length; i++) {
+            obj.push({
+                "index": randomarray[i],
+                "content": `
+                    <img src="/img/sunny.jpg" style="
+                        
+                        clip-path: circle(40%);
+                    ">
+                `,
+                "area": clickevent[i]
+            })
+        }
+        console.log(obj)
+        for (i = 0; i < clickevent.length; i++) {
+            clickevent[randomarray[i] - 1].innerHTML = obj[randomarray[i] - 1].content
+        }
+        let currentarray = randomarray
+        for (i = 0; i < clickevent.length; i++) {
+            let n = i + 1
+            if (n > tdlength) {
+                obj[i].area.addEventListener('click', function () {
+                    if (obj[n - 1 - tdlength].index == randomnumber) {
+                        tpstore = clickevent[n - 1].innerHTML
+                        clickevent[n - 1].innerHTML = clickevent[n - 1 - tdlength].innerHTML
+                        clickevent[n - 1 - tdlength].innerHTML = tpstore
+
+                        tpstore = obj[n - 1].content
+                        obj[n - 1].content = obj[n - 1 - tdlength].content
+                        obj[n - 1 - tdlength].content = tpstore
+
+                        obj[n - 1 - tdlength].index = obj[n - 1].index
+                        obj[n - 1].index = randomnumber
+
+                        tpstore = currentarray[n - 1]
+                        currentarray[n - 1] = currentarray[n - 1 - tdlength]
+                        currentarray[n - 1 - tdlength] = tpstore
+                    }
+                })
+            }
+            if (n <= (clickevent.length - tdlength)) {
+                obj[i].area.addEventListener('click', function () {
+                    if (obj[n - 1 + tdlength].index == randomnumber) {
+                        tpstore = clickevent[n - 1].innerHTML
+                        clickevent[n - 1].innerHTML = clickevent[n - 1 + tdlength].innerHTML
+                        clickevent[n - 1 + tdlength].innerHTML = tpstore
+
+                        tpstore = obj[n - 1].content
+                        obj[n - 1].content = obj[n - 1 + tdlength].content
+                        obj[n - 1 + tdlength].content = tpstore
+
+                        obj[n - 1 + tdlength].index = obj[n - 1].index
+                        obj[n - 1].index = randomnumber
+
+                        tpstore = currentarray[n - 1]
+                        currentarray[n - 1] = currentarray[n - 1 + tdlength]
+                        currentarray[n - 1 + tdlength] = tpstore
+                    }
+                })
+            }
+            if ((n % tdlength) != 1) {
+                obj[i].area.addEventListener('click', function () {
+                    if (obj[n - 2].index == randomnumber) {
+                        tpstore = clickevent[n - 1].innerHTML
+                        clickevent[n - 1].innerHTML = clickevent[n - 2].innerHTML
+                        clickevent[n - 2].innerHTML = tpstore
+
+                        tpstore = obj[n - 1].content
+                        obj[n - 1].content = obj[n - 2].content
+                        obj[n - 2].content = tpstore
+
+                        obj[n - 2].index = obj[n - 1].index
+                        obj[n - 1].index = randomnumber
+
+                        tpstore = currentarray[n - 1]
+                        currentarray[n - 1] = currentarray[n - 2]
+                        currentarray[n - 2] = tpstore
+                    }
+                })
+            }
+            if ((n % tdlength) != 0) {
+                obj[i].area.addEventListener('click', function () {
+                    if (obj[n].index == randomnumber) {
+                        tpstore = clickevent[n - 1].innerHTML
+                        clickevent[n - 1].innerHTML = clickevent[n].innerHTML
+                        clickevent[n].innerHTML = tpstore
+
+
+                        tpstore = obj[n - 1].content
+                        obj[n - 1].content = obj[n].content
+                        obj[n].content = tpstore
+
+                        obj[n].index = obj[n - 1].index
+                        obj[n - 1].index = randomnumber
+
+                        tpstore = currentarray[n - 1]
+                        currentarray[n - 1] = currentarray[n]
+                        currentarray[n] = tpstore
+                    }
+                })
+            }
+            obj[i].area.addEventListener('click', function () {
+                if (String(currentarray) == String(answerarray)) {
+                    console.log("成功")
+                }
+                console.log(obj)
+
+
+            })
+        }
+        console.log("排列陣列: " + answerarray)
+        console.log("亂數陣列: " + randomarray)
+        console.log("亂數: " + randomnumber)
+        console.log(String(currentarray))
+
+    }
+
+</script>
+<style>
+    tr,
+    td {
+        border: 1px black solid;
+    }
+    
+</style>
+
+<body>
+    <div>
+        <table>
+            <tr class="tr1 tr" id="tr_1">
+                <td class="td1 td" id="td_1_1"></td>
+                <td class="td2 td" id="td_1_2"></td>
+                <td class="td3 td" id="td_1_3"></td>
+            </tr>
+            <tr class="tr2 tr" id="tr_2">
+                <td class="td1 td" id="td_2_1"></td>
+                <td class="td2 td" id="td_2_2"></td>
+                <td class="td3 td" id="td_2_3"></td>
+            </tr>
+            <tr class="tr3 tr" id="tr_3">
+                <td class="td1 td" id="td_3_1"></td>
+                <td class="td2 td" id="td_3_2"></td>
+                <td class="td3 td" id="td_3_3"></td>
+                
+        </table>
+    </div>
+</body>
+
+</html>
