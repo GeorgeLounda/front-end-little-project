@@ -18,6 +18,8 @@
     let allheight = 700
     let timecountfunction
     let timecountdisplay = "00:00"
+    let clickinterval = 500
+    let lasttimeclick
     const loadimage = new Image();
     function createimage(width, height) {
         this.x = width
@@ -116,8 +118,8 @@
 
     }
     window.onload = async () => {
-        all.style.width =`${allwidth}px`
-        all.style.height =`${allheight}px`
+        all.style.width = `${allwidth}px`
+        all.style.height = `${allheight}px`
         let difficultychoose = document.querySelectorAll('.difficultychoosenow')
         let photochoose = document.querySelectorAll(".imgchoosenow")
         fetch(imageurl)
@@ -128,11 +130,16 @@
                 loadimage.src = URL.createObjectURL(blob)
             })
         for (i = 0; i < photochoose.length; i++) {
+            photochoose[i].style.margin = "20px"
+            photochoose[i].style.height = "auto"
+            photochoose[i].style.width = `${(allwidth / photochoose.length) - 40}px`
             photochoose[i].addEventListener('click', await function (label) {
                 if (label.srcElement.value == "return") {
                     endbuttonclick()
                 } else {
-                    imageurl = `/img/${label.srcElement.value}.jpg`
+                    imageurl = label.srcElement.src
+
+
                     fetch(imageurl)
                         .then(response => {
                             return response.blob()
@@ -140,6 +147,7 @@
                         .then(blob => {
                             loadimage.src = URL.createObjectURL(blob)
                         })
+
                     endbuttonclick()
 
                 }
@@ -155,22 +163,23 @@
                     puzzlex = puzzleN
                     puzzley = puzzleN
                     endbuttonclick()
-                    difficultynow.innerText = `${puzzlex}x${puzzley}`
+                    difficultynow.innerText = `(${puzzlex}x${puzzley})`
                 }
             })
 
         }
         loadimage.onload = async () => {
             endbuttonclick()
-            difficultynow.innerText = `${puzzlex}x${puzzley}`
-
+            difficultynow.innerText = `(${puzzlex}x${puzzley})`
+            imgchoosenowname.innerText = imageurl.split("/")[imageurl.split("/").length - 1]
 
 
 
 
             start.onclick = async () => {
-                
+
                 startbuttonclick()
+                lasttimeclick = 0
                 timecount = 0
                 moven = 0
                 timecountarea.innerText = "00:00"
@@ -198,14 +207,14 @@
                 image = new createimage(loadimage.width, loadimage.height)
                 imgexample.src = imageurl
                 imgexamplewidth = allwidth - image.x - 40 - imgexamplemargin
-                if (imgexamplewidth < image.x / 3){
+                if (imgexamplewidth < image.x / 3) {
                     imgexample.style.width = `${allwidth - image.x - 40 - imgexamplemargin}px`
                     puzzle.style.marginRight = "20px"
-                }else{
+                } else {
                     imgexample.style.width = `${image.x / 3}px`
                     puzzle.style.marginRight = "auto"
                 }
-                
+
                 console.log(`${image.x} and ${image.y}`)
 
                 let tpstore
@@ -258,7 +267,7 @@
                     <img class="imagenow" src=${imageurl} style=" 
                         width: ${image.x / tdlength}px;
                         height: ${image.y / trlength}px;
-                        filter: brightness(30%);
+                        filter: brightness(20%);
                         object-position: ${xstart * 100}% ${ystart * 100}% ; 
                     ">
                 </div>
@@ -301,91 +310,178 @@
                 for (i = 0; i < clickevent.length; i++) {
                     let n = i + 1
                     if (n > tdlength) {
-                        obj[i].area.addEventListener('click', function () {
-                            if (obj[n - 1 - tdlength].index == randomnumber) {
-                                tpstore = clickevent[n - 1].innerHTML
-                                clickevent[n - 1].innerHTML = clickevent[n - 1 - tdlength].innerHTML
-                                clickevent[n - 1 - tdlength].innerHTML = tpstore
+                        obj[i].area.addEventListener('click', async function () {
+                            if ((obj[n - 1 - tdlength].index == randomnumber)&&((Date.now() - lasttimeclick) > clickinterval)) {
 
-                                tpstore = obj[n - 1].content
-                                obj[n - 1].content = obj[n - 1 - tdlength].content
-                                obj[n - 1 - tdlength].content = tpstore
 
-                                obj[n - 1 - tdlength].index = obj[n - 1].index
-                                obj[n - 1].index = randomnumber
+                                let id = null
+                                let pos = 0
+                                id = setInterval(
+                                    await function frame() {
+                                        
+                                        
+                                        if (pos == Math.floor((image.y / trlength / 3)) * 3) {
+                                            clearInterval(id);
+                                            clickevent[n - 1].style.bottom = '0px';
+                                            clickevent[n - 1].style.zIndex = "0"
 
-                                tpstore = currentarray[n - 1]
-                                currentarray[n - 1] = currentarray[n - 1 - tdlength]
-                                currentarray[n - 1 - tdlength] = tpstore
+                                            tpstore = clickevent[n - 1].innerHTML
+                                            clickevent[n - 1].innerHTML = clickevent[n - 1 - tdlength].innerHTML
+                                            clickevent[n - 1 - tdlength].innerHTML = tpstore
 
-                                moven += 1
+                                            tpstore = obj[n - 1].content
+                                            obj[n - 1].content = obj[n - 1 - tdlength].content
+                                            obj[n - 1 - tdlength].content = tpstore
+
+                                            obj[n - 1 - tdlength].index = obj[n - 1].index
+                                            obj[n - 1].index = randomnumber
+
+                                            tpstore = currentarray[n - 1]
+                                            currentarray[n - 1] = currentarray[n - 1 - tdlength]
+                                            currentarray[n - 1 - tdlength] = tpstore
+
+                                            moven += 1
+                                            lasttimeclick = Date.now()
+                                            
+                                        } else {
+                                            pos += 3
+                                            clickevent[n - 1].style.bottom = pos + 'px';
+                                            clickevent[n - 1].style.zIndex = "1"
+                                        }
+
+                                    }, 1);
                             }
                         })
                     }
-                    if (n <= (clickevent.length - tdlength)) {
-                        obj[i].area.addEventListener('click', function () {
+                    if ((n <= (clickevent.length - tdlength))&&((Date.now() - lasttimeclick) > clickinterval)) {
+                        obj[i].area.addEventListener('click', async function () {
                             if (obj[n - 1 + tdlength].index == randomnumber) {
-                                tpstore = clickevent[n - 1].innerHTML
-                                clickevent[n - 1].innerHTML = clickevent[n - 1 + tdlength].innerHTML
-                                clickevent[n - 1 + tdlength].innerHTML = tpstore
 
-                                tpstore = obj[n - 1].content
-                                obj[n - 1].content = obj[n - 1 + tdlength].content
-                                obj[n - 1 + tdlength].content = tpstore
 
-                                obj[n - 1 + tdlength].index = obj[n - 1].index
-                                obj[n - 1].index = randomnumber
+                                let id = null
+                                let pos = 0
+                                id = setInterval(
+                                    await function frame() {
+                                        if((Date.now() - lasttimeclick) < clickinterval){
+                                            return
+                                        }
+                                        if (pos == Math.floor((image.y / trlength / 3)) * 3) {
+                                            clearInterval(id);
+                                            clickevent[n - 1].style.top = '0px';
+                                            clickevent[n - 1].style.zIndex = "0"
+                                            tpstore = clickevent[n - 1].innerHTML
+                                            clickevent[n - 1].innerHTML = clickevent[n - 1 + tdlength].innerHTML
+                                            clickevent[n - 1 + tdlength].innerHTML = tpstore
 
-                                tpstore = currentarray[n - 1]
-                                currentarray[n - 1] = currentarray[n - 1 + tdlength]
-                                currentarray[n - 1 + tdlength] = tpstore
+                                            tpstore = obj[n - 1].content
+                                            obj[n - 1].content = obj[n - 1 + tdlength].content
+                                            obj[n - 1 + tdlength].content = tpstore
 
-                                moven += 1
+                                            obj[n - 1 + tdlength].index = obj[n - 1].index
+                                            obj[n - 1].index = randomnumber
+
+                                            tpstore = currentarray[n - 1]
+                                            currentarray[n - 1] = currentarray[n - 1 + tdlength]
+                                            currentarray[n - 1 + tdlength] = tpstore
+
+                                            moven += 1
+                                            lasttimeclick = Date.now()
+                                        } else {
+                                            pos += 3
+                                            clickevent[n - 1].style.top = pos + 'px';
+                                            clickevent[n - 1].style.zIndex = "1"
+                                        }
+                                    }, 1);
+
                             }
                         })
                     }
                     if ((n % tdlength) != 1) {
-                        obj[i].area.addEventListener('click', function () {
-                            if (obj[n - 2].index == randomnumber) {
-                                tpstore = clickevent[n - 1].innerHTML
-                                clickevent[n - 1].innerHTML = clickevent[n - 2].innerHTML
-                                clickevent[n - 2].innerHTML = tpstore
+                        obj[i].area.addEventListener('click', async function () {
+                            if ((obj[n - 2].index == randomnumber)&&((Date.now() - lasttimeclick) > clickinterval)) {
 
-                                tpstore = obj[n - 1].content
-                                obj[n - 1].content = obj[n - 2].content
-                                obj[n - 2].content = tpstore
+                                let id = null
+                                let pos = 0
+                                id = setInterval(
+                                    await function frame() {
+                                        if((Date.now() - lasttimeclick) < clickinterval){
+                                            return
+                                        }
+                                        if (pos == Math.floor((image.x / tdlength / 3)) * 3) {
+                                            clearInterval(id);
+                                            clickevent[n - 1].style.right = '0px';
+                                            clickevent[n - 1].style.zIndex = "0"
 
-                                obj[n - 2].index = obj[n - 1].index
-                                obj[n - 1].index = randomnumber
+                                            tpstore = clickevent[n - 1].innerHTML
+                                            clickevent[n - 1].innerHTML = clickevent[n - 2].innerHTML
+                                            clickevent[n - 2].innerHTML = tpstore
 
-                                tpstore = currentarray[n - 1]
-                                currentarray[n - 1] = currentarray[n - 2]
-                                currentarray[n - 2] = tpstore
+                                            tpstore = obj[n - 1].content
+                                            obj[n - 1].content = obj[n - 2].content
+                                            obj[n - 2].content = tpstore
 
-                                moven += 1
+                                            obj[n - 2].index = obj[n - 1].index
+                                            obj[n - 1].index = randomnumber
+
+                                            tpstore = currentarray[n - 1]
+                                            currentarray[n - 1] = currentarray[n - 2]
+                                            currentarray[n - 2] = tpstore
+
+                                            moven += 1
+                                            lasttimeclick = Date.now()
+                                        } else {
+                                            pos += 3
+                                            clickevent[n - 1].style.right = pos + 'px';
+                                            clickevent[n - 1].style.zIndex = "1"
+                                        }
+                                    }, 1);
+
+
                             }
                         })
                     }
                     if ((n % tdlength) != 0) {
-                        obj[i].area.addEventListener('click', function () {
-                            if (obj[n].index == randomnumber) {
-                                tpstore = clickevent[n - 1].innerHTML
-                                clickevent[n - 1].innerHTML = clickevent[n].innerHTML
-                                clickevent[n].innerHTML = tpstore
+                        obj[i].area.addEventListener('click', async function () {
+                            if ((obj[n].index == randomnumber)&&((Date.now() - lasttimeclick) > clickinterval)) {
+
+                                let id = null
+                                let pos = 0
+                                id = setInterval(
+                                    await function frame() {
+                                        if((Date.now() - lasttimeclick) < clickinterval){
+                                            return
+                                        }
+                                        if (pos == Math.floor((image.x / tdlength / 3)) * 3) {
+                                            clearInterval(id);
+                                            clickevent[n - 1].style.left = '0px';
+                                            clickevent[n - 1].style.zIndex = "0"
+
+                                            tpstore = clickevent[n - 1].innerHTML
+                                            clickevent[n - 1].innerHTML = clickevent[n].innerHTML
+                                            clickevent[n].innerHTML = tpstore
 
 
-                                tpstore = obj[n - 1].content
-                                obj[n - 1].content = obj[n].content
-                                obj[n].content = tpstore
+                                            tpstore = obj[n - 1].content
+                                            obj[n - 1].content = obj[n].content
+                                            obj[n].content = tpstore
 
-                                obj[n].index = obj[n - 1].index
-                                obj[n - 1].index = randomnumber
+                                            obj[n].index = obj[n - 1].index
+                                            obj[n - 1].index = randomnumber
 
-                                tpstore = currentarray[n - 1]
-                                currentarray[n - 1] = currentarray[n]
-                                currentarray[n] = tpstore
+                                            tpstore = currentarray[n - 1]
+                                            currentarray[n - 1] = currentarray[n]
+                                            currentarray[n] = tpstore
 
-                                moven += 1
+                                            moven += 1
+                                            lasttimeclick = Date.now()
+                                        } else {
+                                            pos += 3
+                                            clickevent[n - 1].style.left = pos + 'px';
+                                            clickevent[n - 1].style.zIndex = "1"
+                                        }
+                                    }, 1);
+
+
                             }
                         })
                     }
@@ -395,8 +491,8 @@
                             console.log("成功")
                             console.log(moven)
                             console.log(timecount)
-                            costtime.innerText = timecountdisplay
-                            costmove.innerText = moven
+                            costtime.innerText = `花費時間: ${String(Math.floor(timecount / 60))}分 ${String(Math.floor(timecount % 60))} 秒`
+                            costmove.innerText = `一共移動: ${moven} 步`
                             clearInterval(timecountfunction)
 
                         }
@@ -415,8 +511,8 @@
                 console.log(moven)
                 clearstage()
                 console.log(timecount)
-                costtime.innerText = timecountdisplay
-                costmove.innerText = moven
+                costtime.innerText = `花費時間: ${String(Math.floor(timecount / 60))}分 ${String(Math.floor(timecount % 60))}秒`
+                costmove.innerText = `一共移動: ${moven} 步`
                 clearInterval(timecountfunction)
             }
             difficulty.onclick = () => {
@@ -435,16 +531,29 @@
     }
 </script>
 <style>
+    @keyframes example {
+        0% {
+            background-color: red;
+            left: 0px;
+            top: 0px;
+        }
+
+        100% {
+            background-color: red;
+            left: 0px;
+            top: 100px;
+        }
+    }
+
     tr,
     td {
         border: 1px black solid;
     }
 
     td {
-
         overflow: hidden;
         object-fit: contain;
-
+        position: relative;
     }
 
     div.imgdiv {
@@ -457,22 +566,26 @@
     img {
         display: block;
         object-fit: none;
-        
+
     }
 
-    #imgexample{
+    #imgexample {
         position: absolute;
         top: 20px;
         left: 20px;
-        object-fit:contain;
+        object-fit: contain;
     }
+
+    img.imgchoosenow {
+        object-fit: contain;
+    }
+
     #all {
         margin: auto;
         border: 2px solid black;
         position: relative;
     }
 
-    #startmenu {}
 
     #title {
         text-align: center;
@@ -505,7 +618,7 @@
 
     #startbuttonword {
         font-size: xx-large;
-        
+
     }
 
     #playboard {
@@ -518,7 +631,7 @@
 
     #puzzle {
 
-
+        background-color: black;
         border-collapse: collapse;
         object-fit: scale-down;
         text-align: end;
@@ -568,7 +681,23 @@
         justify-content: center;
     }
 
+
+    button {
+        box-shadow: 0 9px #666;
+        background-color: #04AA6D;
+    }
+
     button:hover {
+        background-color: gray;
+    }
+
+    button:active {
+        background-color: #3e8e41;
+        box-shadow: 0 5px #666;
+        transform: translateY(4px);
+    }
+
+    img.imgchoosenow:hover {
         filter: brightness(30%);
 
     }
@@ -580,7 +709,8 @@
 
     }
 
-    button {
+    button,
+    img.imgchoosenow {
         border-radius: 12px;
     }
 
@@ -657,12 +787,12 @@
                 </div>
                 </p>
                 <p>
-                    <button id="imgchoose"><span>選擇圖片</span></button>
+                    <button id="imgchoose"><span>選擇圖片</span><span id="imgchoosenowname"></span></button>
                 <div id="showimg">
                     <div id="showimgn">
-                        <button class="imgchoosenow" value="dog">dog</button>
-                        <button class="imgchoosenow" value="cat">cat</button>
-                        <button class="imgchoosenow" value="bear">bear</button>
+                        <img class="imgchoosenow" src="/img/dog.jpg">
+                        <img class="imgchoosenow" src="/img/cat.jpg">
+                        <img class="imgchoosenow" src="/img/bear.jpg">
                     </div>
                     <button class="imgchoosenow return" value="return">返回</button>
                 </div>
