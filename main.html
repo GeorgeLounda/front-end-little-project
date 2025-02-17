@@ -6,13 +6,18 @@
 </head>
 <script>
     let confirmrand
-    let imageurl = "/img/logo.png"
+    let imageurl = "/img/cat.jpg"
     let image
     let puzzleN = 3
     let puzzlex = puzzleN
     let puzzley = puzzleN
-
-    let moven
+    let timecount = 0
+    let moven = 0
+    let imgexamplemargin = 20
+    let allwidth = 1050
+    let allheight = 700
+    let timecountfunction
+    let timecountdisplay = "00:00"
     const loadimage = new Image();
     function createimage(width, height) {
         this.x = width
@@ -55,35 +60,66 @@
 
     function startbuttonclick() {
         startmenu.style.display = "none"
-        showdifficulty.style.display = "none"
         playboard.style.display = "flex"
-        // playboard.style.height = "100%"
+        timecountarea.style.display = "block"
         puzzle.style.display = "table-row-group"
         clickend.style.display = "inline-block"
+        allclear.style.display = "none"
     }
     function endbuttonclick() {
         startmenu.style.display = "inline-block"
         difficulty.style.display = "inline-block"
+        imgchoose.style.display = "inline-block"
         start.style.display = "inline-block"
         showdifficulty.style.display = "none"
+        showimg.style.display = "none"
         playboard.style.display = "none"
+        timecountarea.style.display = "none"
         puzzle.style.display = "none"
         clickend.style.display = "none"
-
+        allclear.style.display = "none"
     }
     function difficultybuttonclick() {
         startmenu.style.display = "inline-block"
         showdifficulty.style.display = "flex"
+        showimg.style.display = "none"
+        difficulty.style.display = "none"
+        imgchoose.style.display = "none"
+        start.style.display = "none"
+        playboard.style.display = "none"
+        puzzle.style.display = "none"
+        clickend.style.display = "none"
+        allclear.style.display = "none"
+    }
+    function imgbuttonclick() {
+        startmenu.style.display = "inline-block"
+        showdifficulty.style.display = "none"
+        showimg.style.display = "flex"
+        difficulty.style.display = "none"
+        imgchoose.style.display = "none"
+        start.style.display = "none"
+        playboard.style.display = "none"
+        puzzle.style.display = "none"
+        clickend.style.display = "none"
+        allclear.style.display = "none"
+    }
+    function clearstage() {
+        startmenu.style.display = "none"
+        showdifficulty.style.display = "none"
+        showimg.style.display = "none"
         difficulty.style.display = "none"
         start.style.display = "none"
         playboard.style.display = "none"
         puzzle.style.display = "none"
         clickend.style.display = "none"
+        allclear.style.display = "block"
 
     }
     window.onload = async () => {
+        all.style.width =`${allwidth}px`
+        all.style.height =`${allheight}px`
         let difficultychoose = document.querySelectorAll('.difficultychoosenow')
-
+        let photochoose = document.querySelectorAll(".imgchoosenow")
         fetch(imageurl)
             .then(response => {
                 return response.blob()
@@ -91,34 +127,63 @@
             .then(blob => {
                 loadimage.src = URL.createObjectURL(blob)
             })
+        for (i = 0; i < photochoose.length; i++) {
+            photochoose[i].addEventListener('click', await function (label) {
+                if (label.srcElement.value == "return") {
+                    endbuttonclick()
+                } else {
+                    imageurl = `/img/${label.srcElement.value}.jpg`
+                    fetch(imageurl)
+                        .then(response => {
+                            return response.blob()
+                        })
+                        .then(blob => {
+                            loadimage.src = URL.createObjectURL(blob)
+                        })
+                    endbuttonclick()
 
+                }
+            })
+
+        }
+        for (i = 0; i < difficultychoose.length; i++) {
+            difficultychoose[i].addEventListener('click', await function (label) {
+                if (label.srcElement.value == "return") {
+                    endbuttonclick()
+                } else {
+                    puzzleN = parseInt(label.srcElement.value)
+                    puzzlex = puzzleN
+                    puzzley = puzzleN
+                    endbuttonclick()
+                    difficultynow.innerText = `${puzzlex}x${puzzley}`
+                }
+            })
+
+        }
         loadimage.onload = async () => {
             endbuttonclick()
             difficultynow.innerText = `${puzzlex}x${puzzley}`
 
 
 
-            for (i = 0; i < difficultychoose.length; i++) {
-                difficultychoose[i].addEventListener('click', await function (label) {
-                    if (label.srcElement.value == "return") {
-                        endbuttonclick()
-                    } else {
-                        puzzleN = parseInt(label.srcElement.value)
-                        puzzlex = puzzleN
-                        puzzley = puzzleN
-                        endbuttonclick()
-                        difficultynow.innerText = `${puzzlex}x${puzzley}`
-                    }
-                })
 
-            }
+
             start.onclick = async () => {
+                
                 startbuttonclick()
-
+                timecount = 0
+                moven = 0
+                timecountarea.innerText = "00:00"
+                timecountfunction = setInterval(() => {
+                    timecount += 1
+                    timecountminute = `0${String(Math.floor(timecount / 60))}`
+                    timecountsecond = `0${String(Math.floor(timecount % 60))}`
+                    timecountdisplay = `${timecountminute.slice(-2)}:${timecountsecond.slice(-2)}`
+                    timecountarea.innerText = timecountdisplay
+                }, 1000)
 
                 puzzlex = puzzleN
                 puzzley = puzzleN
-                let moven = 0
 
                 let confirmrand = false
                 let html = ""
@@ -131,6 +196,16 @@
                 }
                 puzzle.innerHTML = html
                 image = new createimage(loadimage.width, loadimage.height)
+                imgexample.src = imageurl
+                imgexamplewidth = allwidth - image.x - 40 - imgexamplemargin
+                if (imgexamplewidth < image.x / 3){
+                    imgexample.style.width = `${allwidth - image.x - 40 - imgexamplemargin}px`
+                    puzzle.style.marginRight = "20px"
+                }else{
+                    imgexample.style.width = `${image.x / 3}px`
+                    puzzle.style.marginRight = "auto"
+                }
+                
                 console.log(`${image.x} and ${image.y}`)
 
                 let tpstore
@@ -316,8 +391,14 @@
                     }
                     obj[i].area.addEventListener('click', function () {
                         if (String(currentarray) == String(answerarray)) {
+                            clearstage()
                             console.log("成功")
                             console.log(moven)
+                            console.log(timecount)
+                            costtime.innerText = timecountdisplay
+                            costmove.innerText = moven
+                            clearInterval(timecountfunction)
+
                         }
                         console.log(obj)
 
@@ -331,13 +412,26 @@
 
             }
             endbutton.onclick = () => {
-                endbuttonclick()
+                console.log(moven)
+                clearstage()
+                console.log(timecount)
+                costtime.innerText = timecountdisplay
+                costmove.innerText = moven
+                clearInterval(timecountfunction)
             }
             difficulty.onclick = () => {
                 difficultybuttonclick()
             }
-
+            imgchoose.onclick = () => {
+                imgbuttonclick()
+            }
+            backtomainmenu.onclick = () => {
+                endbuttonclick()
+                clearInterval(timecountfunction)
+                console.log(timecount)
+            }
         }
+
     }
 </script>
 <style>
@@ -363,13 +457,17 @@
     img {
         display: block;
         object-fit: none;
+        
     }
 
-
+    #imgexample{
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        object-fit:contain;
+    }
     #all {
         margin: auto;
-        width: 1000px;
-        height: 700px;
         border: 2px solid black;
         position: relative;
     }
@@ -407,12 +505,12 @@
 
     #startbuttonword {
         font-size: xx-large;
-
+        
     }
 
     #playboard {
         width: 100%;
-        height: auto;
+        height: 100%;
         align-content: center;
         display: flex;
 
@@ -423,16 +521,10 @@
 
         border-collapse: collapse;
         object-fit: scale-down;
-
-        /* position: absolute; 
-        align-self: center;
-        left: 10px;
-        top: 10px;
-        width: 100%; */
         text-align: end;
         margin: auto;
-        margin-top: 50px;
 
+        margin-right: 20px;
 
     }
 
@@ -455,17 +547,20 @@
         width: 20%;
     }
 
-    #difficulty {
+    #difficulty,
+    #imgchoose {
         font-size: xx-large;
         width: 20%;
     }
 
-    #showdifficulty {
+    #showdifficulty,
+    #showimg {
         width: 100%;
         display: block;
     }
 
-    #showdifficultyn {
+    #showdifficultyn,
+    #showimgn {
         text-align: center;
         top: 100px;
         width: 100%;
@@ -478,7 +573,8 @@
 
     }
 
-    button.difficultychoosenow {
+    button.difficultychoosenow,
+    .imgchoosenow {
         font-size: xx-large;
         margin: auto;
 
@@ -494,7 +590,52 @@
         right: 5%;
     }
 
-    
+    #timecountarea {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+        font-size: xx-large;
+        background-color: aqua;
+    }
+
+    #allclear {
+        width: 100%;
+        height: 100%;
+        position: relative;
+    }
+
+    #costtime,
+    #costmove {
+        position: absolute;
+        width: 100%;
+        height: 20%;
+        display: block;
+        text-align: center;
+        font-size: 64px;
+
+    }
+
+    #costtime {
+        top: 20%;
+    }
+
+    #costmove {
+        top: 40%;
+    }
+
+    #backtomainmenu {
+        font-size: xx-large;
+        text-align: center;
+        margin: auto;
+    }
+
+    #backtomainmenuarea {
+        text-align: center;
+        position: absolute;
+        bottom: 20%;
+        margin: auto;
+        width: 100%;
+    }
 </style>
 
 <body>
@@ -507,18 +648,24 @@
                 <p>
                     <button id="difficulty"><span>選擇難度</span><span id="difficultynow"></span> </button>
                 <div id="showdifficulty">
-                    
                     <div id="showdifficultyn">
                         <button class="difficultychoosenow" value="3">3x3</button>
                         <button class="difficultychoosenow" value="4">4x4</button>
                         <button class="difficultychoosenow" value="5">5x5</button>
                     </div>
-                    
-                    
-                        <button class="difficultychoosenow return" value="return">返回</button>
-                    
+                    <button class="difficultychoosenow return" value="return">返回</button>
                 </div>
-
+                </p>
+                <p>
+                    <button id="imgchoose"><span>選擇圖片</span></button>
+                <div id="showimg">
+                    <div id="showimgn">
+                        <button class="imgchoosenow" value="dog">dog</button>
+                        <button class="imgchoosenow" value="cat">cat</button>
+                        <button class="imgchoosenow" value="bear">bear</button>
+                    </div>
+                    <button class="imgchoosenow return" value="return">返回</button>
+                </div>
                 </p>
                 <p>
                     <button id="start">
@@ -530,7 +677,10 @@
         </div>
 
         <div id="playboard">
+            <div id="timecountarea">
 
+            </div>
+            <img src="" id="imgexample">
             <table id="puzzle">
 
             </table>
@@ -538,6 +688,14 @@
             <div id="clickend">
                 <button id="endbutton">結束</button>
             </div>
+        </div>
+
+        <div id="allclear">
+            <div id="costtime"></div>
+            <div id="costmove"></div>
+            <p id="backtomainmenuarea">
+                <button id="backtomainmenu">回到主選單</button>
+            </p>
         </div>
     </div>
 
