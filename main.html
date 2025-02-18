@@ -18,7 +18,7 @@
     let allheight = 700
     let timecountfunction
     let timecountdisplay = "00:00"
-    let clickinterval = 500
+    let clickinterval = 200
     let lasttimeclick
     const loadimage = new Image();
     function createimage(width, height) {
@@ -117,9 +117,38 @@
         allclear.style.display = "block"
 
     }
+    function fullscreendisplay() {
+        fullscreen.style.display = "block"
+    }
+
+    function fullscreendisplayend() {
+        fullscreen.style.display = "none"
+    }
+
+    function successclear(current, answer) {
+        if (String(current) == String(answer)) {
+            fullscreendisplay()
+            fullscreentext.innerText = "成功!!!!"
+            setTimeout(() => {
+                fullscreendisplayend()
+                clearstage()
+                console.log("成功")
+                console.log(moven)
+                console.log(timecount)
+                costtime.innerText = `花費時間: ${String(Math.floor(timecount / 60))}分 ${String(Math.floor(timecount % 60))} 秒`
+                costmove.innerText = `一共移動: ${moven} 步`
+                clearInterval(timecountfunction)
+            }, 2000)
+
+
+        }
+    }
     window.onload = async () => {
         all.style.width = `${allwidth}px`
         all.style.height = `${allheight}px`
+        fullscreen.style.width = `${allwidth}px`
+        fullscreen.style.height = `${allheight}px`
+
         let difficultychoose = document.querySelectorAll('.difficultychoosenow')
         let photochoose = document.querySelectorAll(".imgchoosenow")
         fetch(imageurl)
@@ -178,19 +207,36 @@
 
             start.onclick = async () => {
 
+                fullscreen.style.display = "block"
+                fullscreentext.innerText = "3"
+                fullscreentext.style.animationName = "countdown"
+                fullscreentext.style.animationDuration = "1s"
+                setTimeout(() => {
+                    fullscreentext.innerText = "2"
+                }, 1000)
+                setTimeout(() => {
+                    fullscreentext.innerText = "1"
+                }, 2000)
                 startbuttonclick()
+
+
                 lasttimeclick = 0
                 timecount = 0
                 moven = 0
                 timecountarea.innerText = "00:00"
-                timecountfunction = setInterval(() => {
-                    timecount += 1
-                    timecountminute = `0${String(Math.floor(timecount / 60))}`
-                    timecountsecond = `0${String(Math.floor(timecount % 60))}`
-                    timecountdisplay = `${timecountminute.slice(-2)}:${timecountsecond.slice(-2)}`
-                    timecountarea.innerText = timecountdisplay
-                }, 1000)
 
+                setTimeout(async () => {
+                    fullscreendisplayend()
+                    fullscreentext.style.animationName = "none"
+                    fullscreentext.style.animationDuration = "none"
+                    timecountfunction = setInterval(() => {
+                        timecount += 1
+                        timecountminute = `0${String(Math.floor(timecount / 60))}`
+                        timecountsecond = `0${String(Math.floor(timecount % 60))}`
+                        timecountdisplay = `${timecountminute.slice(-2)}:${timecountsecond.slice(-2)}`
+                        timecountarea.innerText = timecountdisplay
+                    }, 1000)
+                }, 3000)
                 puzzlex = puzzleN
                 puzzley = puzzleN
 
@@ -302,6 +348,7 @@
 
 
                 }
+
                 console.log(obj)
                 for (i = 0; i < clickevent.length; i++) {
                     clickevent[randomarray[i] - 1].innerHTML = obj[randomarray[i] - 1].content
@@ -310,16 +357,16 @@
                 for (i = 0; i < clickevent.length; i++) {
                     let n = i + 1
                     if (n > tdlength) {
-                        obj[i].area.addEventListener('click', async function () {
-                            if ((obj[n - 1 - tdlength].index == randomnumber)&&((Date.now() - lasttimeclick) > clickinterval)) {
+                        obj[i].area.addEventListener('click', async function (clickpointevent) {
+                            if ((obj[n - 1 - tdlength].index == randomnumber) && ((Date.now() - lasttimeclick) > clickinterval) && (clickpointevent.detail == 1)) {
 
 
                                 let id = null
                                 let pos = 0
                                 id = setInterval(
                                     await function frame() {
-                                        
-                                        
+
+
                                         if (pos == Math.floor((image.y / trlength / 3)) * 3) {
                                             clearInterval(id);
                                             clickevent[n - 1].style.bottom = '0px';
@@ -342,7 +389,9 @@
 
                                             moven += 1
                                             lasttimeclick = Date.now()
-                                            
+                                            successclear(currentarray, answerarray)
+
+
                                         } else {
                                             pos += 3
                                             clickevent[n - 1].style.bottom = pos + 'px';
@@ -353,16 +402,16 @@
                             }
                         })
                     }
-                    if ((n <= (clickevent.length - tdlength))&&((Date.now() - lasttimeclick) > clickinterval)) {
-                        obj[i].area.addEventListener('click', async function () {
-                            if (obj[n - 1 + tdlength].index == randomnumber) {
+                    if ((n <= clickevent.length - tdlength)) {
+                        obj[i].area.addEventListener('click', async function (clickpointevent) {
+                            if ((obj[n - 1 + tdlength].index == randomnumber) && ((Date.now() - lasttimeclick) > clickinterval) && (clickpointevent.detail == 1)) {
 
 
                                 let id = null
                                 let pos = 0
                                 id = setInterval(
                                     await function frame() {
-                                        if((Date.now() - lasttimeclick) < clickinterval){
+                                        if ((Date.now() - lasttimeclick) < clickinterval) {
                                             return
                                         }
                                         if (pos == Math.floor((image.y / trlength / 3)) * 3) {
@@ -386,6 +435,8 @@
 
                                             moven += 1
                                             lasttimeclick = Date.now()
+                                            successclear(currentarray, answerarray)
+
                                         } else {
                                             pos += 3
                                             clickevent[n - 1].style.top = pos + 'px';
@@ -397,14 +448,14 @@
                         })
                     }
                     if ((n % tdlength) != 1) {
-                        obj[i].area.addEventListener('click', async function () {
-                            if ((obj[n - 2].index == randomnumber)&&((Date.now() - lasttimeclick) > clickinterval)) {
+                        obj[i].area.addEventListener('click', async function (clickpointevent) {
+                            if ((obj[n - 2].index == randomnumber) && ((Date.now() - lasttimeclick) > clickinterval) && (clickpointevent.detail == 1)) {
 
                                 let id = null
                                 let pos = 0
                                 id = setInterval(
                                     await function frame() {
-                                        if((Date.now() - lasttimeclick) < clickinterval){
+                                        if ((Date.now() - lasttimeclick) < clickinterval) {
                                             return
                                         }
                                         if (pos == Math.floor((image.x / tdlength / 3)) * 3) {
@@ -429,6 +480,8 @@
 
                                             moven += 1
                                             lasttimeclick = Date.now()
+                                            successclear(currentarray, answerarray)
+
                                         } else {
                                             pos += 3
                                             clickevent[n - 1].style.right = pos + 'px';
@@ -441,14 +494,14 @@
                         })
                     }
                     if ((n % tdlength) != 0) {
-                        obj[i].area.addEventListener('click', async function () {
-                            if ((obj[n].index == randomnumber)&&((Date.now() - lasttimeclick) > clickinterval)) {
+                        obj[i].area.addEventListener('click', async function (clickpointevent) {
+                            if ((obj[n].index == randomnumber) && ((Date.now() - lasttimeclick) > clickinterval) && (clickpointevent.detail == 1)) {
 
                                 let id = null
                                 let pos = 0
                                 id = setInterval(
                                     await function frame() {
-                                        if((Date.now() - lasttimeclick) < clickinterval){
+                                        if ((Date.now() - lasttimeclick) < clickinterval) {
                                             return
                                         }
                                         if (pos == Math.floor((image.x / tdlength / 3)) * 3) {
@@ -474,6 +527,8 @@
 
                                             moven += 1
                                             lasttimeclick = Date.now()
+                                            successclear(currentarray, answerarray)
+
                                         } else {
                                             pos += 3
                                             clickevent[n - 1].style.left = pos + 'px';
@@ -485,25 +540,12 @@
                             }
                         })
                     }
-                    obj[i].area.addEventListener('click', function () {
-                        if (String(currentarray) == String(answerarray)) {
-                            clearstage()
-                            console.log("成功")
-                            console.log(moven)
-                            console.log(timecount)
-                            costtime.innerText = `花費時間: ${String(Math.floor(timecount / 60))}分 ${String(Math.floor(timecount % 60))} 秒`
-                            costmove.innerText = `一共移動: ${moven} 步`
-                            clearInterval(timecountfunction)
 
-                        }
-                        console.log(obj)
-
-
-                    })
                 }
                 console.log("排列陣列: " + answerarray)
                 console.log("亂數陣列: " + randomarray)
                 console.log("亂數: " + randomnumber)
+
 
 
             }
@@ -531,17 +573,23 @@
     }
 </script>
 <style>
-    @keyframes example {
+    @keyframes countdown {
         0% {
-            background-color: red;
+            /* background-color: red; */
             left: 0px;
             top: 0px;
+            filter: opacity(1);
+            font-size: 80px;
+
+        }
+
+        95% {
+            filter: opacity(0.2);
+            font-size: 400px;
         }
 
         100% {
-            background-color: red;
-            left: 0px;
-            top: 100px;
+            filter: opacity(0.01);
         }
     }
 
@@ -766,6 +814,32 @@
         margin: auto;
         width: 100%;
     }
+
+    div#fullscreen {
+        display: none;
+        position: absolute;
+        background-color: rgb(20, 20, 20);
+        filter: opacity(80%);
+        /* color: gray; */
+        text-align: center;
+        z-index: 99;
+        align-content: center;
+    }
+
+    div#fullscreentext {
+        position: flex;
+        margin: auto;
+        font-size: 80px;
+        /* background-color: gray; */
+        /* filter:opacity(50%); */
+        color: white;
+        z-index: 1;
+
+
+        animation-iteration-count: 3;
+
+
+    }
 </style>
 
 <body>
@@ -805,8 +879,11 @@
             </div>
 
         </div>
-
+        <div id="fullscreen">
+            <div id="fullscreentext"></div>
+        </div>
         <div id="playboard">
+
             <div id="timecountarea">
 
             </div>
@@ -827,6 +904,7 @@
                 <button id="backtomainmenu">回到主選單</button>
             </p>
         </div>
+
     </div>
 
 </body>
