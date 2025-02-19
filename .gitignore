@@ -1,5 +1,5 @@
 .env
 *.xlsx
-*.png
-*.jpg
-*.gif
+# *.png
+# *.jpg
+# *.gif
