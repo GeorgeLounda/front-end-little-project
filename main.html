@@ -136,6 +136,7 @@
             fullscreentext.style.animationDuration =  "2s"
             fullscreentext.style.animationIterationCount = "2"
             fullscreentext.style.animationTimingFunction = "cubic-bezier(0.445, 0.05, 0.55, 0.95)"
+            clearInterval(timecountfunction)
             setTimeout(() => {
                 fullscreendisplay()
 
@@ -150,7 +151,7 @@
                 console.log(timecount)
                 costtime.innerText = `花費時間: ${String(Math.floor(timecount / 60))}分 ${String(Math.floor(timecount % 60))} 秒`
                 costmove.innerText = `一共移動: ${moven} 步`
-                clearInterval(timecountfunction)
+                
             }, 2300)
 
 
